@@ -242,5 +242,5 @@ func mapChange() {
 }
 
 func main() {
-	mapChange()
+
 }
