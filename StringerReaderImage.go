@@ -2,7 +2,7 @@
 * @FileName   : StringerReaderImage
 * @Author     : Chen Wang
 * @Version    : Go1.13.1 、Windows or Linux
-* @Description: 介绍fmt中包的Stringer使用和IO包Reader
+* @Description: 介绍fmt中包的Stringer使用和IO包Reader接口以及image接口
 * @Time       : 2019/11/6 12:13
 * @Software   : GoLand
 * @Contact    : 1416825008@qq.com
@@ -14,6 +14,8 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"strings"
 )
 
 // fmt 包里面有Stringer是最普遍的接口之一
@@ -63,7 +65,40 @@ func testError() {
 	}
 } // 更多错误处理详见errorStudy.go
 
+// io 包指定了 io.Reader 接口，它表示从数据流的末尾读取字符。很多其他的标准库包含该接口，文件、网络连接、压缩和加密
+// func (T) Read(b []byte) (n int, err error) 数据填充给定的字节切片并返回填充的字节数和错误值。在遇到数据流的结尾时，它会返回一个 io.EOF 错误。
+func testReader() {
+	s := strings.NewReader("This is Reader!") // 返回的是*Reader;"func NewReader(s string) *Reader { return &Reader{s, 0, -1} }"
+	/*type Reader struct {
+		s        string
+		i        int64 // current reading index
+		prevRune int   // index of previous rune; or < 0
+	}*/
+	fmt.Printf("%t,%v\n", s, s) // 输出了 &{This is Reader! 0 -1}
+	b := make([]byte, 8)        // make主要是创建Slice,Map,Channal。这里返回的b不是指针，而是具体类型定义的切片.等价于b:=[8]byte
+	// var b [8]byte是错误的，这个创建的是byte数组
+	for {
+		n, err := s.Read(b) // 遇到数据流末尾时候返回一个io.EOF   End Of File
+		if err != io.EOF {
+			fmt.Println(n, err, b[:n])
+			fmt.Printf("%q,%s\n", b[:n], b[:n]) // %q 字符串带双引号，且安全打印b[:n]包括自动转义
+		} else {
+			break
+		}
+	}
+}
+
+// Image 包也定义了接口image
+/*
+type Image interface {
+    ColorModel() color.Model
+    Bounds() Rectangle
+    At(x, y int) color.Color
+}
+color.Model  color.Color
+*/
 func main() {
-	testStringer()
-	testError()
+	// testStringer()
+	// testError()
+	testReader()
 }
